@@ -84,6 +84,7 @@ class Nonno {
     double ratioHW = width/height;
     gl.RenderingContext context = _canvas.getContext3d();
     context.viewport(0, 0, this.width, this.height);
+
     //
     // compile shader
     gl.Shader vertexS = context.createShader(gl.VERTEX_SHADER);
@@ -123,6 +124,7 @@ class Nonno {
     await nTexture.create(context);
     //
     //
+
     final vSize = 3;
     final cSize = 4;
     final tSize = 2;
@@ -158,6 +160,9 @@ class Nonno {
     context.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     context.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     context.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexs, gl.STATIC_DRAW);
+    // context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+    context.clearColor(0.0,0.3,0.3,0.5);
+    context.clear(gl.COLOR_BUFFER_BIT);
     context.drawElements(gl.TRIANGLES, indexs.length, gl.UNSIGNED_SHORT, 0);
     context.flush();
   }
