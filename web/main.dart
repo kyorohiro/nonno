@@ -69,51 +69,43 @@ class Nonno {
       ].join("\r\n"));
     }
     context.useProgram(program);
-
-    //
-    //
-    final vsize = 3;
-    final cSize = 4;
-    gl.Buffer vertexBuffer = context.createBuffer();
-    gl.Buffer colorBuffer = context.createBuffer();
     var vertexPositionLocation = context.getAttribLocation(program, "vertexPosition");
     var colorLocation = context.getAttribLocation(program, "color");
 
+    //
+    //
+    final vSize = 3;
+    final cSize = 4;
+    final strideSize = (7)*Float32List.BYTES_PER_ELEMENT;
+    final colorOffset = (3)*Float32List.BYTES_PER_ELEMENT;
+    gl.Buffer vertexBuffer = context.createBuffer();
+    gl.Buffer indexBuffer = context.createBuffer();
+
     context.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     context.enableVertexAttribArray(vertexPositionLocation);
-    context.vertexAttribPointer(vertexPositionLocation, vsize, gl.FLOAT, false, 0, 0);
-
-    context.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     context.enableVertexAttribArray(colorLocation);
-    context.vertexAttribPointer(colorLocation, cSize, gl.FLOAT, false, 0, 0);
+    context.vertexAttribPointer(vertexPositionLocation, vSize, gl.FLOAT, false, strideSize, 0);
+    context.vertexAttribPointer(colorLocation, cSize, gl.FLOAT, false, strideSize, colorOffset );
+
 
     var vertices = new Float32List.fromList(<double>[
-      -0.5, 0.5, 0.0,
-      -0.5, -0.5, 0.0,
-      0.5, 0.5, 0.0,
-      -0.5, -0.5, 0.0,
-      0.5, -0.5, 0.0,
-      0.5, 0.5, 0.0
+      -0.5, 0.5, 0.0,  1.0, 0.0, 0.0, 1.0,
+      -0.5, -0.5, 0.0,  0.0, 1.0, 0.0, 1.0,
+      0.5, 0.5, 0.0,   0.0, 0.0, 1.0, 1.0,
+      0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 1.0,
     ]);
-    var colors = new Float32List.fromList(<double>[
-      1.0, 0.0, 0.0, 1.0,
-      0.0, 1.0, 0.0, 1.0,
-      0.0, 0.0, 1.0, 1.0,
-      0.0, 1.0, 0.0, 1.0,
-      0.0, 0.0, 0.0, 1.0,
-      0.0, 0.0, 1.0, 1.0
-    ]);
+
+    var indexs = new Uint16List.fromList(<int>[
+      0,1,2,//
+      1,3,2
+      ]);
     //
-    //
+
     context.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     context.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-    context.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    context.bufferData(gl.ARRAY_BUFFER, colors, gl.STATIC_DRAW);
-
-    const VERTEX_NUMS = 6;
-    context.drawArrays(gl.TRIANGLES, 0, VERTEX_NUMS);
-
+    context.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    context.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexs, gl.STATIC_DRAW);
+    context.drawElements(gl.TRIANGLES, indexs.length, gl.UNSIGNED_SHORT, 0);
     context.flush();
   }
 
