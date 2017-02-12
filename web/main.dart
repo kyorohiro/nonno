@@ -139,8 +139,47 @@ class Nonno {
   }
 
   gl.RenderingContext context;
-  
+
+  List makeVertex(double ratioHW,{int w:4, int h:4}) {
+    var vertices = (<double>[]);
+    var indexs = (<int>[]);
+
+    double xsv = -0.5;
+    double ysv = 0.5* ratioHW;
+    double sv = 1.0/4;
+
+    double xst = 0.0;
+    double yst = 0.0;
+    double st = 1.0/4;
+
+      for(int y=0;y<=h;y++){
+        for(int x=0;x<=w;x++){
+
+          vertices.addAll(<double>[
+          xsv+sv*x,
+          ysv-sv*y* ratioHW,
+          0.0, /**/1.0, 0.0, 0.0, 1.0,//
+          xst+st*x,
+          xst+st*y]);
+      }
+    }
+
+      for(int y=0;y<h;y++){
+        for(int x=0;x<w;x++){
+          indexs.addAll(<int>[
+            (x+0)+((y+0)*(w+1)), (x+1)+((y+0)*(w+1)), (x+0)+((y+1)*(w+1)),
+          ]);
+          indexs.addAll(<int>[
+            (x+1)+((y+0)*(w+1)), (x+1)+((y+1)*(w+1)), (x+0)+((y+1)*(w+1)),
+          ]);
+      }
+    }
+
+    return [vertices, indexs];
+  }
+
   init() async {
+    print(">>>>>>A");
     double ratioHW = width / height;
     context = _canvas.getContext3d();
     context.viewport(0, 0, this.width, this.height);
@@ -171,17 +210,9 @@ class Nonno {
     context.vertexAttribPointer(nprogram.colorLocation, cSize, gl.FLOAT, false, strideSize, colorOffset);
     context.vertexAttribPointer(nprogram.texCoordLocation, tSize, gl.FLOAT, false, strideSize, texOffset);
 
-    var vertices = new Float32List.fromList(<double>[
-      -0.5, 0.5 * ratioHW, 0.0, /**/1.0, 0.0, 0.0, 1.0, /**/ 0.0, 0.0,
-      -0.5, -0.5 * ratioHW, 0.0, /**/0.0, 1.0, 0.0, 1.0, /**/ 0.0, 1.0,
-      0.5, 0.5 * ratioHW, 0.0, /**/0.0, 0.0, 1.0, 1.0, /**/ 1.0, 0.0,
-      0.5, -0.5 * ratioHW, 0.0, /**/0.0, 0.0, 0.0, 1.0, /**/ 1.0, 1.0,
-    ]);
-
-    var indexs = new Uint16List.fromList(<int>[
-      0, 1, 2, //
-      2, 3, 1
-    ]);
+    List vs = makeVertex(ratioHW);
+    var vertices = new Float32List.fromList(vs[0]);
+    var indexs = new Uint16List.fromList(vs[1]);
     //
     //
 
