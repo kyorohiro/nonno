@@ -3,7 +3,8 @@ import 'dart:web_gl' as gl;
 import 'dart:typed_data';
 import 'dart:async';
 import 'imageutil.dart';
-
+import 'ntexture.dart';
+import 'nprogram.dart';
 
 main() async {
   Nonno nonno = new Nonno("assets/ic.jpg");
@@ -12,120 +13,6 @@ main() async {
   await nonno.start();
 }
 
-class NTexture {
-  html.ImageElement imageElement;
-  gl.Texture texture;
-
-  static Future<NTexture> newTexture(String path) async {
-    print("start load");
-    NTexture tex = new NTexture();
-
-    tex.imageElement = new html.ImageElement();
-    Completer comp = new Completer();
-    tex.imageElement.onLoad.listen((e) async {
-      print("found ${tex.imageElement.width} ${tex.imageElement.height}");
-      tex.imageElement = await ImageUtil.resizeImage(tex.imageElement, nextWidth: 512);
-      comp.complete(tex);
-    });
-    tex.imageElement.onError.listen((e) {
-      print("not found");
-      comp.completeError(e);
-    });
-    tex.imageElement.src = path;
-    return comp.future;
-  }
-
-  create(gl.RenderingContext context) {
-    this.texture = context.createTexture();
-    context.bindTexture(gl.TEXTURE_2D, texture);
-    context.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.imageElement);
-    context.generateMipmap(gl.TEXTURE_2D);
-  }
-
-  int get widht => imageElement.clientWidth;
-
-  int get height => imageElement.clientHeight;
-
-}
-
-class NProgram {
-  // calc position
-  String vertextShaderSrc = const [
-    "attribute vec3 vertexPosition;",
-    "attribute vec4 color;",
-    "attribute vec2 texCoord;",
-    "varying vec4 vColor;",
-    "varying vec2 textureCoord;",
-    "void main() {",
-    "  vColor = color;",
-    "  textureCoord= texCoord;",
-    "  gl_Position = vec4(vertexPosition, 1.0);",
-    "}",
-  ].join("\r\n");
-
-  // write to pixel
-  String fragmentShaderSrc = const [
-    "precision mediump float;",
-    "uniform sampler2D texture;",
-    "varying vec2 textureCoord;",
-    "varying vec4 vColor;",
-    "void main() {",
-    "gl_FragColor = texture2D(texture, textureCoord);",
-//    "  gl_FragColor = vColor;",
-    "}",
-  ].join("\r\n");
-
-  int _vertexPositionLocation;
-  int _colorLocation;
-  int _texCoordLocation;
-
-  int get vertexPositionLocation => _vertexPositionLocation;
-
-  int get colorLocation => _colorLocation;
-
-  int get texCoordLocation => _texCoordLocation;
-
-  gl.Program get program => _program;
-  gl.Program _program;
-
-  gl.Program compile(gl.RenderingContext context, {bool doUse: true}) {
-    gl.Shader vertexS = context.createShader(gl.VERTEX_SHADER);
-    gl.Shader fragmS = context.createShader(gl.FRAGMENT_SHADER);
-    context.shaderSource(vertexS, vertextShaderSrc);
-    context.compileShader(vertexS);
-    context.shaderSource(fragmS, fragmentShaderSrc);
-    context.compileShader(fragmS);
-    if (false == context.getShaderParameter(vertexS, gl.COMPILE_STATUS)) {
-      throw new Exception(["failed to comile vertex shader: ", //
-      context.getShaderInfoLog(vertexS)
-      ].join("\r\n"));
-    }
-    if (false == context.getShaderParameter(fragmS, gl.COMPILE_STATUS)) {
-      throw new Exception(["failed to comile fragment shader: ", //
-      context.getShaderInfoLog(fragmS)
-      ].join("\r\n"));
-    }
-
-    //
-    // link program
-    _program = context.createProgram();
-    context.attachShader(program, vertexS);
-    context.attachShader(program, fragmS);
-    context.linkProgram(program);
-
-    if (false == context.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Exception(["failed to link program: ", //
-      context.getProgramInfoLog(program)
-      ].join("\r\n"));
-    }
-    _vertexPositionLocation = context.getAttribLocation(program, "vertexPosition");
-    _colorLocation = context.getAttribLocation(program, "color");
-    _texCoordLocation = context.getAttribLocation(program, "texCoord");
-
-    context.useProgram(_program);
-    return program;
-  }
-}
 
 class Nonno {
   final int width;
@@ -171,9 +58,9 @@ class Nonno {
         indexs.addAll(<int>[
           (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
         ]);
-        indexs.addAll(<int>[
-          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
-        ]);
+//        indexs.addAll(<int>[
+//          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+//        ]);
       }
     }
 
