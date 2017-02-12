@@ -5,12 +5,16 @@ import 'dart:async';
 import 'imageutil.dart';
 import 'ntexture.dart';
 import 'nprogram.dart';
+import 'dart:math' as math;
 
 main() async {
-  Nonno nonno = new Nonno("assets/ic.jpg");
+  Nonno nonno = await Nonno.newNonno("assets/ic.jpg");
   html.document.body.append(nonno.element);
   await nonno.init();
-  await nonno.start();
+  for(int i=0;i<30;i++) {
+    await nonno.anime();
+    await new Future.delayed(new Duration(milliseconds: 500));
+  }
 }
 
 
@@ -21,24 +25,33 @@ class Nonno {
   html.CanvasElement _canvas;
   final String texturePath;
 
-  Nonno(this.texturePath, {this.width: 600, this.height: 400, this.cellSize: 20}) {
+  Nonno._private(this.texturePath, {this.width: 600, this.height: 400, this.cellSize: 20}) {
     _canvas = new html.CanvasElement(width: this.width, height: this.height);
+  }
+
+  static Future<Nonno> newNonno(String texturePath, {int width: 600, int height: 400, int cellSize: 20}) async {
+    Nonno ret = new Nonno._private(texturePath,width:width,height:height,cellSize: cellSize);
+    await ret.init();
+    return ret;
   }
 
   gl.RenderingContext context;
 
 
+  gl.Buffer vertexBuffer;
+  gl.Buffer indexBuffer;
+  NProgram nprogram;
+  NTexture nTexture;
   init() async {
-    print(">>>>>>A");
     double ratioHW = width / height;
     context = _canvas.getContext3d();
     context.viewport(0, 0, this.width, this.height);
 
-    NProgram nprogram = new NProgram();
+    nprogram = new NProgram();
     nprogram.compile(context);
 
     //
-    NTexture nTexture = await NTexture.newTexture(texturePath,ratioHW:ratioHW,h: 10,w:10);
+    nTexture = await NTexture.newTexture(texturePath,ratioHW:ratioHW,h: 10,w:10);
     await nTexture.create(context);
     //
     //
@@ -49,8 +62,9 @@ class Nonno {
     final strideSize = (9) * Float32List.BYTES_PER_ELEMENT;
     final colorOffset = (3) * Float32List.BYTES_PER_ELEMENT;
     final texOffset = (7) * Float32List.BYTES_PER_ELEMENT;
-    gl.Buffer vertexBuffer = context.createBuffer();
-    gl.Buffer indexBuffer = context.createBuffer();
+
+    vertexBuffer = context.createBuffer();
+    indexBuffer = context.createBuffer();
 
     context.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     context.enableVertexAttribArray(nprogram.vertexPositionLocation);
@@ -60,7 +74,12 @@ class Nonno {
     context.vertexAttribPointer(nprogram.colorLocation, cSize, gl.FLOAT, false, strideSize, colorOffset);
     context.vertexAttribPointer(nprogram.texCoordLocation, tSize, gl.FLOAT, false, strideSize, texOffset);
 
+  }
 
+
+  math.Random rand = new math.Random();
+
+  anime() {
     //
     //
     context.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -69,13 +88,10 @@ class Nonno {
     context.bufferData(gl.ELEMENT_ARRAY_BUFFER, nTexture.indexs, gl.STATIC_DRAW);
     // context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
     context.clearColor(0.0, 0.3, 0.3, 0.5);
+//    context.clearColor(rand.nextInt(100)/100, rand.nextInt(100)/100, rand.nextInt(100)/100, rand.nextInt(100)/100);
     context.clear(gl.COLOR_BUFFER_BIT);
     context.drawElements(gl.TRIANGLES, nTexture.indexs.length, gl.UNSIGNED_SHORT, 0);
     context.flush();
-  }
-
-  start() {
-
   }
 
   html.Element get element => _canvas;
