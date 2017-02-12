@@ -8,6 +8,7 @@ class NProgram {
   // calc position
   String vertextShaderSrc = const [
     "attribute vec3 vertexPosition;",
+    "attribute vec3 optPosition;",
     "attribute vec4 color;",
     "attribute vec2 texCoord;",
     "varying vec4 vColor;",
@@ -15,7 +16,7 @@ class NProgram {
     "void main() {",
     "  vColor = color;",
     "  textureCoord= texCoord;",
-    "  gl_Position = vec4(vertexPosition, 1.0);",
+    "  gl_Position = vec4(optPosition+vertexPosition, 1.0);",
     "}",
   ].join("\r\n");
 
@@ -34,12 +35,15 @@ class NProgram {
   int _vertexPositionLocation;
   int _colorLocation;
   int _texCoordLocation;
+  int _optPositionLocation;
 
   int get vertexPositionLocation => _vertexPositionLocation;
 
   int get colorLocation => _colorLocation;
 
   int get texCoordLocation => _texCoordLocation;
+
+  int get optPositionLocation => _optPositionLocation;
 
   gl.Program get program => _program;
   gl.Program _program;
@@ -77,7 +81,7 @@ class NProgram {
     _vertexPositionLocation = context.getAttribLocation(program, "vertexPosition");
     _colorLocation = context.getAttribLocation(program, "color");
     _texCoordLocation = context.getAttribLocation(program, "texCoord");
-
+    _optPositionLocation = context.getAttribLocation(program, "optPosition");
     context.useProgram(_program);
     return program;
   }

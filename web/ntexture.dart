@@ -31,7 +31,8 @@ class NTexture {
       comp.completeError(e);
     });
     tex.imageElement.src = path;
-    tex.makeVertex();
+//    tex.makeVertex();
+    tex.updateAllVertex();
     return comp.future;
   }
 
@@ -51,17 +52,24 @@ class NTexture {
   //
   Float32List get vertices => _vertices;
   Uint16List get indexs => _indexs;
-  Float32List _vertices = [];
-  Uint16List _indexs = [];
+  Float32List _vertices = null;
+  Uint16List _indexs = null;
 
   makeEmptyVertices() {
-    return new Float32List(vertices.length);
+    return new Float32List((w+1)*(h*1));
   }
 
-  makeVertex() {
-    var __vertices = (<double>[]);
-    var __indexs = (<int>[]);
+  updateOpt() {
 
+  }
+  
+  updateAllVertex() {
+   if(_vertices == null){
+      _vertices = new Float32List(12*(w+1)*(h+1));
+   }
+   if(_indexs == null) {
+     _indexs = new Uint16List(3*2*(w)*(h));
+   }
     double xsv = -0.5;
     double ysv = 0.5* ratioHW;
     double sv_w = 1.0/w;
@@ -74,29 +82,25 @@ class NTexture {
 
     for(int y = 0; y <= h; y++) {
       for (int x = 0; x <= w; x++) {
-        __vertices.addAll(<double>[
+        _vertices.setRange(y*12*(w+1) + x*12, y*12*(w+1) + (x+1)*12, <double>[
           xsv + sv_w * x,
           ysv - sv_h * y * ratioHW,
           0.0, /**/1.0, 0.0, 0.0, 1.0, //
           xst + st_w * x,
-          xst + st_h * y
+          xst + st_h * y,
+          0.0,0.0,0.0,
         ]);
       }
     }
 
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
-        __indexs.addAll(<int>[
-          (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+        _indexs.setRange(y*6*(w) + x*6, y*6*(w) + (x+1)*6,<int>[
+          (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),//
+          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
         ]);
-//        indexs.addAll(<int>[
-//          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
-//        ]);
       }
     }
-    _vertices = new Float32List.fromList(__vertices);
-    _indexs = new Uint16List.fromList(__indexs);
-
   }
 
 }
