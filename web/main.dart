@@ -152,26 +152,26 @@ class Nonno {
     double yst = 0.0;
     double st = 1.0/4;
 
-      for(int y=0;y<=h;y++){
-        for(int x=0;x<=w;x++){
-
+      for(int y = 0; y <= h; y++) {
+        for (int x = 0; x <= w; x++) {
           vertices.addAll(<double>[
-          xsv+sv*x,
-          ysv-sv*y* ratioHW,
-          0.0, /**/1.0, 0.0, 0.0, 1.0,//
-          xst+st*x,
-          xst+st*y]);
+            xsv + sv * x,
+            ysv - sv * y * ratioHW,
+            0.0, /**/1.0, 0.0, 0.0, 1.0, //
+            xst + st * x,
+            xst + st * y
+          ]);
+        }
       }
-    }
 
-      for(int y=0;y<h;y++){
-        for(int x=0;x<w;x++){
-          indexs.addAll(<int>[
-            (x+0)+((y+0)*(w+1)), (x+1)+((y+0)*(w+1)), (x+0)+((y+1)*(w+1)),
-          ]);
-          indexs.addAll(<int>[
-            (x+1)+((y+0)*(w+1)), (x+1)+((y+1)*(w+1)), (x+0)+((y+1)*(w+1)),
-          ]);
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
+        indexs.addAll(<int>[
+          (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+        ]);
+        indexs.addAll(<int>[
+          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+        ]);
       }
     }
 
