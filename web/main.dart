@@ -38,7 +38,7 @@ class Nonno {
     nprogram.compile(context);
 
     //
-    NTexture nTexture = await NTexture.newTexture(texturePath);
+    NTexture nTexture = await NTexture.newTexture(texturePath,ratioHW:ratioHW,h: 10,w:10);
     await nTexture.create(context);
     //
     //
@@ -60,9 +60,9 @@ class Nonno {
     context.vertexAttribPointer(nprogram.colorLocation, cSize, gl.FLOAT, false, strideSize, colorOffset);
     context.vertexAttribPointer(nprogram.texCoordLocation, tSize, gl.FLOAT, false, strideSize, texOffset);
 
-    List vs = nTexture.makeVertex(ratioHW,h: 10,w:10);
-    var vertices = new Float32List.fromList(vs[0]);
-    var indexs = new Uint16List.fromList(vs[1]);
+    List vs = nTexture.makeVertex();
+    var vertices = nTexture.vertices;
+    var indexs = nTexture.indexs;
     //
     //
 

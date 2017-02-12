@@ -48,13 +48,12 @@ class NTexture {
   //
   //
   //
-  Float32List vertices = (<double>[]);
+  Float32List vertices = [];
+  Uint16List indexs = [];
 
-  //var indexs = (<int>[]);
-
-  List makeVertex(double ratioHW,{int w:4, int h:4}) {
-    var vertices = (<double>[]);
-    var indexs = (<int>[]);
+  List makeVertex() {
+    var _vertices = (<double>[]);
+    var _indexs = (<int>[]);
 
     double xsv = -0.5;
     double ysv = 0.5* ratioHW;
@@ -68,7 +67,7 @@ class NTexture {
 
     for(int y = 0; y <= h; y++) {
       for (int x = 0; x <= w; x++) {
-        vertices.addAll(<double>[
+        _vertices.addAll(<double>[
           xsv + sv_w * x,
           ysv - sv_h * y * ratioHW,
           0.0, /**/1.0, 0.0, 0.0, 1.0, //
@@ -80,7 +79,7 @@ class NTexture {
 
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
-        indexs.addAll(<int>[
+        _indexs.addAll(<int>[
           (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
         ]);
 //        indexs.addAll(<int>[
@@ -88,8 +87,10 @@ class NTexture {
 //        ]);
       }
     }
+    vertices = new Float32List.fromList(_vertices);
+    indexs = new Uint16List.fromList(_indexs);
 
-    return [vertices, indexs];
+    return [_vertices, _indexs];
   }
 
 }
