@@ -54,6 +54,10 @@ class NTexture {
   Float32List _vertices = [];
   Uint16List _indexs = [];
 
+  makeEmptyVertices() {
+    return new Float32List(vertices.length);
+  }
+
   makeVertex() {
     var __vertices = (<double>[]);
     var __indexs = (<int>[]);
