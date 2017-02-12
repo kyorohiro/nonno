@@ -146,20 +146,22 @@ class Nonno {
 
     double xsv = -0.5;
     double ysv = 0.5* ratioHW;
-    double sv = 1.0/4;
+    double sv_w = 1.0/w;
+    double sv_h = 1.0/h;
 
     double xst = 0.0;
     double yst = 0.0;
-    double st = 1.0/4;
+    double st_w = 1.0/w;
+    double st_h = 1.0/h;
 
       for(int y = 0; y <= h; y++) {
         for (int x = 0; x <= w; x++) {
           vertices.addAll(<double>[
-            xsv + sv * x,
-            ysv - sv * y * ratioHW,
+            xsv + sv_w * x,
+            ysv - sv_h * y * ratioHW,
             0.0, /**/1.0, 0.0, 0.0, 1.0, //
-            xst + st * x,
-            xst + st * y
+            xst + st_w * x,
+            xst + st_h * y
           ]);
         }
       }
@@ -210,7 +212,7 @@ class Nonno {
     context.vertexAttribPointer(nprogram.colorLocation, cSize, gl.FLOAT, false, strideSize, colorOffset);
     context.vertexAttribPointer(nprogram.texCoordLocation, tSize, gl.FLOAT, false, strideSize, texOffset);
 
-    List vs = makeVertex(ratioHW);
+    List vs = makeVertex(ratioHW,h: 10,w:10);
     var vertices = new Float32List.fromList(vs[0]);
     var indexs = new Uint16List.fromList(vs[1]);
     //
