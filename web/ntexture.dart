@@ -8,9 +8,16 @@ class NTexture {
   html.ImageElement imageElement;
   gl.Texture texture;
 
-  static Future<NTexture> newTexture(String path) async {
+  final int w;
+  final int h;
+  final double ratioHW;//width / height
+
+  NTexture({this.ratioHW:1.0,this.w:4, this.h:4}) {
+  }
+
+  static Future<NTexture> newTexture(String path,{double ratioHW:1.0,int w:4, int h:4}) async {
     print("start load");
-    NTexture tex = new NTexture();
+    NTexture tex = new NTexture(ratioHW:ratioHW,w:w,h:h);
 
     tex.imageElement = new html.ImageElement();
     Completer comp = new Completer();
@@ -37,5 +44,52 @@ class NTexture {
   int get widht => imageElement.clientWidth;
 
   int get height => imageElement.clientHeight;
+
+  //
+  //
+  //
+  Float32List vertices = (<double>[]);
+
+  //var indexs = (<int>[]);
+
+  List makeVertex(double ratioHW,{int w:4, int h:4}) {
+    var vertices = (<double>[]);
+    var indexs = (<int>[]);
+
+    double xsv = -0.5;
+    double ysv = 0.5* ratioHW;
+    double sv_w = 1.0/w;
+    double sv_h = 1.0/h;
+
+    double xst = 0.0;
+    double yst = 0.0;
+    double st_w = 1.0/w;
+    double st_h = 1.0/h;
+
+    for(int y = 0; y <= h; y++) {
+      for (int x = 0; x <= w; x++) {
+        vertices.addAll(<double>[
+          xsv + sv_w * x,
+          ysv - sv_h * y * ratioHW,
+          0.0, /**/1.0, 0.0, 0.0, 1.0, //
+          xst + st_w * x,
+          xst + st_h * y
+        ]);
+      }
+    }
+
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
+        indexs.addAll(<int>[
+          (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+        ]);
+//        indexs.addAll(<int>[
+//          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+//        ]);
+      }
+    }
+
+    return [vertices, indexs];
+  }
 
 }
