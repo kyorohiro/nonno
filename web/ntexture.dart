@@ -31,6 +31,7 @@ class NTexture {
       comp.completeError(e);
     });
     tex.imageElement.src = path;
+    tex.makeVertex();
     return comp.future;
   }
 
@@ -48,12 +49,14 @@ class NTexture {
   //
   //
   //
-  Float32List vertices = [];
-  Uint16List indexs = [];
+  Float32List get vertices => _vertices;
+  Uint16List get indexs => _indexs;
+  Float32List _vertices = [];
+  Uint16List _indexs = [];
 
-  List makeVertex() {
-    var _vertices = (<double>[]);
-    var _indexs = (<int>[]);
+  makeVertex() {
+    var __vertices = (<double>[]);
+    var __indexs = (<int>[]);
 
     double xsv = -0.5;
     double ysv = 0.5* ratioHW;
@@ -67,7 +70,7 @@ class NTexture {
 
     for(int y = 0; y <= h; y++) {
       for (int x = 0; x <= w; x++) {
-        _vertices.addAll(<double>[
+        __vertices.addAll(<double>[
           xsv + sv_w * x,
           ysv - sv_h * y * ratioHW,
           0.0, /**/1.0, 0.0, 0.0, 1.0, //
@@ -79,7 +82,7 @@ class NTexture {
 
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
-        _indexs.addAll(<int>[
+        __indexs.addAll(<int>[
           (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
         ]);
 //        indexs.addAll(<int>[
@@ -87,10 +90,9 @@ class NTexture {
 //        ]);
       }
     }
-    vertices = new Float32List.fromList(_vertices);
-    indexs = new Uint16List.fromList(_indexs);
+    _vertices = new Float32List.fromList(__vertices);
+    _indexs = new Uint16List.fromList(__indexs);
 
-    return [_vertices, _indexs];
   }
 
 }

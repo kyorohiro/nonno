@@ -60,20 +60,17 @@ class Nonno {
     context.vertexAttribPointer(nprogram.colorLocation, cSize, gl.FLOAT, false, strideSize, colorOffset);
     context.vertexAttribPointer(nprogram.texCoordLocation, tSize, gl.FLOAT, false, strideSize, texOffset);
 
-    List vs = nTexture.makeVertex();
-    var vertices = nTexture.vertices;
-    var indexs = nTexture.indexs;
-    //
-    //
 
+    //
+    //
     context.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    context.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    context.bufferData(gl.ARRAY_BUFFER, nTexture.vertices, gl.STATIC_DRAW);
     context.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    context.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexs, gl.STATIC_DRAW);
+    context.bufferData(gl.ELEMENT_ARRAY_BUFFER, nTexture.indexs, gl.STATIC_DRAW);
     // context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
     context.clearColor(0.0, 0.3, 0.3, 0.5);
     context.clear(gl.COLOR_BUFFER_BIT);
-    context.drawElements(gl.TRIANGLES, indexs.length, gl.UNSIGNED_SHORT, 0);
+    context.drawElements(gl.TRIANGLES, nTexture.indexs.length, gl.UNSIGNED_SHORT, 0);
     context.flush();
   }
 
