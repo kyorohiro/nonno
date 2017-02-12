@@ -11,9 +11,11 @@ main() async {
   Nonno nonno = await Nonno.newNonno("assets/ic.jpg");
   html.document.body.append(nonno.element);
   await nonno.init();
-  for(int i=0;i<30;i++) {
+  //for(int i=0;i<30;i++)
+  while(true)
+  {
     await nonno.anime();
-    await new Future.delayed(new Duration(milliseconds: 500));
+    await new Future.delayed(new Duration(milliseconds: 20));
   }
 }
 
@@ -71,6 +73,7 @@ class Nonno {
 
   anime() {
     //
+    nTexture.updateOpt();
     {
       final vSize = 3;
       final cSize = 4;
@@ -100,18 +103,7 @@ class Nonno {
     {
       context.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
       context.bufferData(gl.ELEMENT_ARRAY_BUFFER, nTexture.indexs, gl.STATIC_DRAW);
-    }/*
-    {
-      context.enableVertexAttribArray(nprogram.optPositionLocation);
-      context.vertexAttribPointer(nprogram.optPositionLocation,3, gl.FLOAT,false,0,0);
-      List v = nTexture.makeEmptyVertices();
-      for(int i=0;i<v.length;i++) {
-        v[i] = 0.0;
-      }
-      context.bindBuffer(gl.ARRAY_BUFFER, optBuffer);
-      context.bufferData(gl.ARRAY_BUFFER, v, gl.STATIC_DRAW);
-    }*/
-    // context.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+    }
     context.clearColor(0.0, 0.3, 0.3, 0.5);
     context.clear(gl.COLOR_BUFFER_BIT);
     context.drawElements(gl.TRIANGLES, nTexture.indexs.length, gl.UNSIGNED_SHORT, 0);

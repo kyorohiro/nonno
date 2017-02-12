@@ -3,6 +3,7 @@ import 'dart:web_gl' as gl;
 import 'dart:typed_data';
 import 'dart:async';
 import 'imageutil.dart';
+import 'dart:math' as math;
 
 class NTexture {
   html.ImageElement imageElement;
@@ -59,10 +60,18 @@ class NTexture {
     return new Float32List((w+1)*(h*1));
   }
 
+  double zz = 0;
   updateOpt() {
-
+    for(int y = 0; y <= h; y++) {
+      for (int x = 0; x <= w; x++) {
+        _vertices.setRange(y*12*(w+1) + x*12+9, y*12*(w+1) + x*12+9+3, <double> [
+          math.sin(math.PI/12*zz)*0.1,0.0,0.0,
+        ]);
+      }
+    }
+    zz++;
   }
-  
+
   updateAllVertex() {
    if(_vertices == null){
       _vertices = new Float32List(12*(w+1)*(h+1));
@@ -82,10 +91,11 @@ class NTexture {
 
     for(int y = 0; y <= h; y++) {
       for (int x = 0; x <= w; x++) {
-        _vertices.setRange(y*12*(w+1) + x*12, y*12*(w+1) + (x+1)*12, <double>[
+        _vertices.setRange(y*12*(w+1) + x*12, y*12*(w+1) + (x+1)*12, <double> [
           xsv + sv_w * x,
           ysv - sv_h * y * ratioHW,
-          0.0, /**/1.0, 0.0, 0.0, 1.0, //
+          0.0, //
+          1.0, 0.0, 0.0, 1.0, //
           xst + st_w * x,
           xst + st_h * y,
           0.0,0.0,0.0,
