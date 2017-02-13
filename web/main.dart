@@ -11,56 +11,11 @@ import 'nonno.dart' as nonno;
 math.Random rand = new math.Random.secure();
 
 
-main() async {
-  // Create canvas and context
-  var canvas = html.document.createElement('canvas');
-  html.document.body.children.add(canvas);
-  gl.RenderingContext context = canvas.getContext("experimental-webgl");
 
-
-
-  // Query extension
-  //var OES_texture_float = gl.getExtension('OES_texture_float');
-  //if (!OES_texture_float) {
-   // throw new Exception("No support for OES_texture_float");
- // }
-
-  // Clear
-  //context.viewport(0, 0, canvas.width, canvas.height);
-  //context.clearColor(1.0, 0.0, 0.0, 1.0);
-  //context.clear(gl.COLOR_BUFFER_BIT);
-
-  // Create texture
-  var texture = context.createTexture();
-  context.bindTexture(gl.TEXTURE_2D, texture);
-  context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  context.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 32, 32, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-
-
-  // Create and attach frame buffer
-  var fbo = context.createFramebuffer();
-  context.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-  context.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-  context.bindTexture(gl.TEXTURE_2D, null);
-  if (context.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
-    throw new Exception("gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE");
-  }
-  context.bindFramebuffer(gl.FRAMEBUFFER, null);
-  // Clear
-  context.viewport(0, 0, canvas.width, canvas.height);
-  context.clearColor(1.0, 0.0, 0.0, 1.0);
-  context.clear(gl.COLOR_BUFFER_BIT);
-  Uint8List pixels = new Uint8List(4 * 32 * 32); /////
-  context.readPixels(0, 0, 32, 32, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-  print("==ZB=> ${pixels.buffer.asUint8List()}");
-}
-mainA() async{
+main() async{
   //nonno.main();
-  int w = 256;
-  int h = 256;
+  int w = 4;
+  int h = 4;
   NGPU ngpu = new NGPU();
   html.document.body.children.add(ngpu.canvasElement);
   ngpu.canvasElement.onMouseMove.listen((html.MouseEvent e) {
@@ -70,24 +25,37 @@ mainA() async{
 }
 
 class NGPU {
-  html.CanvasElement canvasElement;
-  NGPUProgrram program;
-  gl.RenderingContext context;
   final int width;
   final int height;
+  //
+  //
+  gl.RenderingContext context;
+  html.CanvasElement canvasElement;
+  NGPUProgrram program;
+  gl.Framebuffer frameBuffer;
+  gl.Renderbuffer depthBuffer;
+  gl.Texture fTexture;
 
-  NGPU({this.width: 256, this.height: 256}) {
+
+  math.Random rand = new math.Random.secure();
+  Float32List buffer;
+  NGPU({this.width: 4, this.height: 4, this.buffer:null}) {
+    if(buffer == null) {
+      buffer = new Float32List(this.width * this.height*4);
+      for(int y=0;y<this.height;y++){
+        for(int x=0;x<this.width;x++){
+          buffer[y*this.width +x] = rand.nextInt(255)/255;
+        }
+      }
+    }
     canvasElement = new html.CanvasElement(width: width, height: height);
     program = new NGPUProgrram();
     context = canvasElement.getContext3d();
     program.compile(context);
-
     init();
   }
 
-  gl.Framebuffer frameBuffer;
-  gl.Renderbuffer depthBuffer;
-  gl.Texture fTexture;
+
   createFramebuffer(){
     frameBuffer = context.createFramebuffer();
     context.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
@@ -99,22 +67,14 @@ class NGPU {
     //
     fTexture = context.createTexture();
     context.bindTexture(gl.TEXTURE_2D,fTexture);
-    context.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    context.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, this.buffer);
     context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
-
     context.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, fTexture, 0);
-
-    //context.bindTexture(gl.TEXTURE_2D, null);
-    //context.bindRenderbuffer(gl.RENDERBUFFER, null);
-    //context.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
-  init() {
-    createFramebuffer();
-
-    //
+  bindFramebuffer(){
     //
     Float32List positionData = new Float32List.fromList([
       -1.0,  1.0,  0.0,
@@ -141,73 +101,43 @@ class NGPU {
     context.enableVertexAttribArray(program.vertexPositionLocation);
     context.vertexAttribPointer(program.vertexPositionLocation,3,gl.FLOAT,false, 0,0);
     context.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index);
-
-    context.viewport(0, 0, width, height);
-    context.clearColor(0.0,0.0,0.0,1.0);
-
-    //
-    //
-
   }
 
-  render() async {
-    int t = new DateTime.now().microsecondsSinceEpoch;
-    for(int i=0;i<30;i++)
-    {
-      await new Future.delayed(new Duration(milliseconds: 200));
+  init() {
+    var ext = context.getExtension('OES_texture_float');
+    if(ext == null){
+      throw new Exception("No support for OES_texture_float");
+    }
+    createFramebuffer();
+    bindFramebuffer();
+  }
 
+  render() {
+    try {
       context.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
-      int tt = new DateTime.now().microsecondsSinceEpoch;
-//      context.uniform1f(program.timeLocation,(tt-t)/10000/100);
-      context.clearColor(1.0,0.0,0.0,1.0);
+      context.clearColor(1.0, 1.0, 0.0, 1.0);
       context.clearDepth(1.0);
       context.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      //
 
-      //
-  //    context.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+      context.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
       context.flush();
-     // context.bindFramebuffer(gl.FRAMEBUFFER, null);
-      //
 
-   //   var pixels = new Float32List(256 * 256*4);
-   //   context.readPixels( 0, 0, 256, 256, gl.RGBA, gl.FLOAT, pixels);
+      var pixels = new Float32List(width * height * 4);
+      context.readPixels(
+          0,
+          0,
+          width,
+          height,
+          gl.RGBA,
+          gl.FLOAT,
+          pixels);
+      print("==B=> ${pixels.buffer.asFloat32List()}");
+    } finally {
       context.bindFramebuffer(gl.FRAMEBUFFER, null);
-      var pixels = new Uint8List(256 * 256*4);
-      context.readPixels( 0, 0, 256, 256, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-      print("==Z=> ${(tt-t)/10000/10000}");
-      print("==B=> ${pixels.buffer.asUint8List().sublist(0,100)}");
     }
   }
 
-  createTexture(gl.RenderingContext context) {
-    var position_data = new Uint8List.fromList([
-      255, 255, 0, 255,
-      0, 255, 0, 255,
-      0, 0, 255, 255,
-      255, 255, 255, 255,
-    ]);
 
-    var position_texture = context.createTexture();
-    context.bindTexture(gl.TEXTURE_2D, position_texture);
-
-    context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    context.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    context.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        2,
-        2,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        position_data); //
-
-  }
 }
 
 class NGPUProgrram {
