@@ -60,7 +60,7 @@ class NTexture {
     return new Float32List((w+1)*(h*1));
   }
 
-  double zz = 0;
+  double zz = 0.0;
   updateOpt() {
     for(int y = 0; y <= h; y++) {
       for (int x = 0; x <= w; x++) {
