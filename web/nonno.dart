@@ -56,7 +56,7 @@ class Nonno {
     nprogram.compile(context);
 
     //
-    nTexture = await NTexture.newTexture(texturePath, ratioHW: ratioHW, h: 256, w: 256,fh: 24,fw: 24);
+    nTexture = await NTexture.newTexture(texturePath, ratioHW: ratioHW, h: 256, w: 256,fh: 12,fw: 12);
     await nTexture.create(context);
     //
     //
@@ -72,7 +72,7 @@ class Nonno {
 
   anime() {
     //
-    nTexture.updateOpt();
+
     {
       final vSize = 3;
       final cSize = 4;
@@ -107,6 +107,9 @@ class Nonno {
     context.clear(gl.COLOR_BUFFER_BIT);
     context.drawElements(gl.TRIANGLES, nTexture.indexs.length, gl.UNSIGNED_SHORT, 0);
     context.flush();
+    nTexture.updateOpt();
+    nTexture.updateOpt();
+    nTexture.updateOpt();
   }
 
   html.Element get element => _canvas;
@@ -120,7 +123,8 @@ class Nonno {
   updateOptB() {
     for (int y = 0; y <= nTexture.h; y++) {
       for (int x = 0; x <= nTexture.w; x++) {
-        nTexture.setOpt(x, y, math.sin(math.PI / 12 * zz) * 0.2, //
+        nTexture.setOpt(x, y,//
+            math.sin(math.PI / 12 * zz) * 0.2, //
             math.cos(math.PI / 12 * zz) * 0.2, 0.0);
       }
     }

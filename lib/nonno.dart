@@ -64,7 +64,13 @@ class Particles {
       }
     }
   }
-
+  decay() {
+    for (int y = 1; y < h; y++) {
+      for (int x = 1; x < w; x++) {
+        getParticle(x,y).decay();
+      }
+    }
+  }
   calc(int x, int y) {
     Particle m = get(x, y);
     m.calcs(<Particle>[
@@ -79,10 +85,11 @@ class Particles {
 class Particle {
   vec.Vector3 p;
   vec.Vector3 a;
-  double m = 1.0;
-  double k = 0.01;
+  double m = 30.0;
+  double k = 0.10;
   double r = 10.0;
   bool fix = false;
+  double decayV = 0.99;
 
   String toString() {
     return ({"p":p, "a":a, "m":m, "k":k, "r": r, "fix":fix}).toString()+"\r\n";
@@ -101,10 +108,18 @@ class Particle {
     }
   }
 
+  decay(){
+    if(fix == false) {
+      a.x *=decayV;
+      a.y *=decayV;
+      a.z *=decayV;
+    }
+  }
+
   calcs(List<Particle> ps) {
     for (Particle p in ps) {
       vec.Vector3 l = this.calc(p);
-     // print("a ${l}");
+      l /=m;
       a = a.add(l);
     }
   }

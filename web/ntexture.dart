@@ -20,8 +20,8 @@ class NTexture {
     particles = new non.Particles(w, h);
     for(non.Particle p in particles.ps) {
       if(p.fix == false) {
-        p.a.x += 0.001;
-        p.a.y += 0.001;
+        p.a.x += 0.011;
+        p.a.y += 0.011;
       }
     }
   }
@@ -113,10 +113,10 @@ class NTexture {
       for (int x = 0; x < w; x++) {
         _indexs.setRange(
             y * 6 * (w) + x * 6, //
-            y * 6 * (w) + x * 6+3,//
+            y * 6 * (w) + x * 6+3+3,//
             <int>[
           (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)), //
-//          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
         ]);
       }
     }
@@ -131,6 +131,7 @@ class NTexture {
     }
     particles.calcs();
     particles.move(1.0);
+    particles.decay();
     //print("${particles.getParticle(2,2)}");
 
   }
