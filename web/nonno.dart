@@ -6,14 +6,14 @@ import 'imageutil.dart';
 import 'ntexture.dart';
 import 'nprogram.dart';
 import 'dart:math' as math;
+import 'package:vector_math/vector_math_64.dart' as vec;
 
 main() async {
   Nonno nonno = await Nonno.newNonno("assets/ic.jpg");
   html.document.body.append(nonno.element);
   await nonno.init();
   //for(int i=0;i<30;i++)
-  while(true)
-  {
+  while (true) {
     await nonno.anime();
     await new Future.delayed(new Duration(milliseconds: 20));
   }
@@ -27,12 +27,12 @@ class Nonno {
   html.CanvasElement _canvas;
   final String texturePath;
 
-  Nonno._private(this.texturePath, {this.width: 600, this.height: 400, this.cellSize: 20}) {
+  Nonno._private(this.texturePath, {this.width: 256, this.height: 256, this.cellSize: 20}) {
     _canvas = new html.CanvasElement(width: this.width, height: this.height);
   }
 
-  static Future<Nonno> newNonno(String texturePath, {int width: 600, int height: 400, int cellSize: 20}) async {
-    Nonno ret = new Nonno._private(texturePath,width:width,height:height,cellSize: cellSize);
+  static Future<Nonno> newNonno(String texturePath, {int width: 256, int height: 256, int cellSize: 20}) async {
+    Nonno ret = new Nonno._private(texturePath, width: width, height: height, cellSize: cellSize);
     await ret.init();
     return ret;
   }
@@ -54,18 +54,15 @@ class Nonno {
     nprogram.compile(context);
 
     //
-    nTexture = await NTexture.newTexture(texturePath,ratioHW:ratioHW,h: 10,w:10);
+    nTexture = await NTexture.newTexture(texturePath, ratioHW: ratioHW, h: 256, w: 256);
     await nTexture.create(context);
     //
     //
 
 
-
     vertexBuffer = context.createBuffer();
     indexBuffer = context.createBuffer();
     optBuffer = context.createBuffer();
-
-
   }
 
 
@@ -73,16 +70,16 @@ class Nonno {
 
   anime() {
     //
-    nTexture.updateOpt();
+    updateOpt();
     {
       final vSize = 3;
       final cSize = 4;
       final tSize = 2;
       final optSize = 3;
-      final strideSize = (vSize+cSize+tSize+optSize) * Float32List.BYTES_PER_ELEMENT;
+      final strideSize = (vSize + cSize + tSize + optSize) * Float32List.BYTES_PER_ELEMENT;
       final colorOffset = (vSize) * Float32List.BYTES_PER_ELEMENT;
-      final texOffset = (vSize+cSize) * Float32List.BYTES_PER_ELEMENT;
-      final optOffset = (vSize+cSize+tSize) * Float32List.BYTES_PER_ELEMENT;
+      final texOffset = (vSize + cSize) * Float32List.BYTES_PER_ELEMENT;
+      final optOffset = (vSize + cSize + tSize) * Float32List.BYTES_PER_ELEMENT;
 
       context.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
       context.enableVertexAttribArray(nprogram.vertexPositionLocation);
@@ -111,4 +108,19 @@ class Nonno {
   }
 
   html.Element get element => _canvas;
+
+  //
+  //
+  //
+  double zz = 0.0;
+
+  updateOpt() {
+    for (int y = 0; y <= nTexture.h; y++) {
+      for (int x = 0; x <= nTexture.w; x++) {
+        nTexture.setOpt(x, y, math.sin(math.PI / 12 * zz) * 0.2, //
+            math.cos(math.PI / 12 * zz) * 0.2, 0.0);
+      }
+    }
+    zz++;
+  }
 }

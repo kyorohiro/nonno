@@ -28,7 +28,7 @@ class NProgram {
     "varying vec4 vColor;",
     "void main() {",
     "gl_FragColor = texture2D(texture, textureCoord);",
-//    "  gl_FragColor = vColor;",
+//    "  gl_FragColor = texture2D(texture, vec2(gl_FragCoord.x/256.0, -1.0*gl_FragCoord.y/256.0));",
     "}",
   ].join("\r\n");
 
