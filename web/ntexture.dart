@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'imageutil.dart';
 import 'dart:math' as math;
+import 'package:nonno/nonno.dart' as non;
+import 'package:vector_math/vector_math_64.dart' as vec;
 
 class NTexture {
   html.ImageElement imageElement;
@@ -12,12 +14,21 @@ class NTexture {
   final int w;
   final int h;
   final double ratioHW; //width / height
+  non.Particles particles;
+  NTexture({this.ratioHW: 1.0, this.w: 4, this.h: 4}) {
 
-  NTexture({this.ratioHW: 1.0, this.w: 4, this.h: 4}) {}
+    particles = new non.Particles(w, h);
+    for(non.Particle p in particles.ps) {
+      if(p.fix == false) {
+        p.a.x += 0.001;
+        p.a.y += 0.001;
+      }
+    }
+  }
 
-  static Future<NTexture> newTexture(String path, {double ratioHW: 1.0, int w: 4, int h: 4}) async {
+  static Future<NTexture> newTexture(String path, {double ratioHW: 1.0, int w: 4, int h: 4, int fw:12,fh:12}) async {
     print("start load");
-    NTexture tex = new NTexture(ratioHW: ratioHW, w: 12, h: 12);
+    NTexture tex = new NTexture(ratioHW: ratioHW, w: fw, h: fh);
 
     tex.imageElement = new html.ImageElement();
     Completer comp = new Completer();
@@ -102,12 +113,25 @@ class NTexture {
       for (int x = 0; x < w; x++) {
         _indexs.setRange(
             y * 6 * (w) + x * 6, //
-            y * 6 * (w) + x * 6+6,//
+            y * 6 * (w) + x * 6+3,//
             <int>[
           (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)), //
-          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
+//          (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
         ]);
       }
     }
+  }
+  //
+  updateOpt() {
+    for (int y = 0; y <= h; y++) {
+      for (int x = 0; x <= w; x++) {
+        vec.Vector3 p = particles.getOpt(x,y);
+        setOpt(x, y, p.x, p.y, 0.0);
+      }
+    }
+    particles.calcs();
+    particles.move(1.0);
+    //print("${particles.getParticle(2,2)}");
+
   }
 }
