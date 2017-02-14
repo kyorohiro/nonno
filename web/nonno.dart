@@ -10,7 +10,7 @@ import 'package:vector_math/vector_math_64.dart' as vec;
 import 'package:nonno/nonno.dart' as non;
 
 main() async {
-  Nonno nonno = await Nonno.newNonno("assets/ic.jpg");
+  Nonno nonno = await Nonno.newNonno("assets/ic.jpg",width: 512, height: 512);
   html.document.body.append(nonno.element);
   await nonno.init();
   //for(int i=0;i<30;i++)
