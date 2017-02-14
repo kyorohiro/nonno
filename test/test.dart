@@ -6,11 +6,11 @@ void main() {
 
   unit.test("basic a", () {
     non.Particles ps = new non.Particles(2,2);
+    ps.getParticle(2,2).a.x += 10.0;
     print("A: ${ps}");
     ps.calcs();
+    ps.move(1.0);
     print("B: ${ps}");
-
-
   });
   /*
   unit.test("basic a", () {

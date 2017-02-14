@@ -7,6 +7,7 @@ import 'ntexture.dart';
 import 'nprogram.dart';
 import 'dart:math' as math;
 import 'package:vector_math/vector_math_64.dart' as vec;
+import 'package:nonno/nonno.dart' as non;
 
 main() async {
   Nonno nonno = await Nonno.newNonno("assets/ic.jpg");
@@ -26,9 +27,16 @@ class Nonno {
   final int cellSize;
   html.CanvasElement _canvas;
   final String texturePath;
+  non.Particles particles;
 
   Nonno._private(this.texturePath, {this.width: 256, this.height: 256, this.cellSize: 20}) {
     _canvas = new html.CanvasElement(width: this.width, height: this.height);
+    particles = new non.Particles(12+1, 12+1);
+    for(non.Particle p in particles.ps) {
+      if(p.fix == false) {
+        p.a.x += 0.001;
+      }
+    }
   }
 
   static Future<Nonno> newNonno(String texturePath, {int width: 256, int height: 256, int cellSize: 20}) async {
@@ -115,6 +123,18 @@ class Nonno {
   double zz = 0.0;
 
   updateOpt() {
+    for (int y = 0; y <= nTexture.h; y++) {
+      for (int x = 0; x <= nTexture.w; x++) {
+        vec.Vector3 p = particles.getOpt(x+1,y+1);
+        nTexture.setOpt(x, y, p.x, p.y, 0.0);
+      }
+    }
+    particles.calcs();
+    particles.move(1.0);
+    print("${particles.getParticle(2,2)}");
+
+  }
+  updateOptB() {
     for (int y = 0; y <= nTexture.h; y++) {
       for (int x = 0; x <= nTexture.w; x++) {
         nTexture.setOpt(x, y, math.sin(math.PI / 12 * zz) * 0.2, //

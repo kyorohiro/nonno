@@ -12,6 +12,7 @@ class Particles {
   String toString() {
     return " ${ps}";
   }
+
   Particles(this.w, this.h) {
     ps = new List<Particle>((w + 2) * (h + 2));
     for (int y in [0, h+1]) {
@@ -32,12 +33,19 @@ class Particles {
     }
   }
 
+  vec.Vector3 getOpt(int x, int y) {
+    Particle p = getParticle(x, y);
+    return new vec.Vector3(p.p.x-x*10,p.p.y-y*10, 0.0);
+  }
+
   void setParticle(int x, int y,Particle v) {
     ps[y * (w+2) + x] = v;
   }
+
   Particle getParticle(int x, int y) {
     return ps[y * (w+2) + x];
   }
+
   Particle get(int x, y) {
     return ps[y * (w+2) + x];
   }
@@ -49,10 +57,10 @@ class Particles {
       }
     }
   }
-  move() {
+  move(double t) {
     for (int y = 1; y < h; y++) {
       for (int x = 1; x < w; x++) {
-        calc(x, y);
+        getParticle(x,y).move(t);
       }
     }
   }
@@ -71,8 +79,8 @@ class Particles {
 class Particle {
   vec.Vector3 p;
   vec.Vector3 a;
-  double m;
-  double k = 0.2;
+  double m = 1.0;
+  double k = 0.01;
   double r = 10.0;
   bool fix = false;
 
@@ -96,6 +104,7 @@ class Particle {
   calcs(List<Particle> ps) {
     for (Particle p in ps) {
       vec.Vector3 l = this.calc(p);
+     // print("a ${l}");
       a = a.add(l);
     }
   }

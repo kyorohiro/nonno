@@ -17,7 +17,7 @@ class NTexture {
 
   static Future<NTexture> newTexture(String path, {double ratioHW: 1.0, int w: 4, int h: 4}) async {
     print("start load");
-    NTexture tex = new NTexture(ratioHW: ratioHW, w: w, h: h);
+    NTexture tex = new NTexture(ratioHW: ratioHW, w: 12, h: 12);
 
     tex.imageElement = new html.ImageElement();
     Completer comp = new Completer();
@@ -67,6 +67,7 @@ class NTexture {
 
 
   updateAllVertex() {
+
     if (_vertices == null) {
       _vertices = new Float32List(12 * (w + 1) * (h + 1));
     }
@@ -99,7 +100,10 @@ class NTexture {
 
     for (int y = 0; y < h; y++) {
       for (int x = 0; x < w; x++) {
-        _indexs.setRange(y * 6 * (w) + x * 6, y * 6 * (w) + (x + 1) * 6, <int>[
+        _indexs.setRange(
+            y * 6 * (w) + x * 6, //
+            y * 6 * (w) + x * 6+6,//
+            <int>[
           (x + 0) + ((y + 0) * (w + 1)), (x + 1) + ((y + 0) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)), //
           (x + 1) + ((y + 0) * (w + 1)), (x + 1) + ((y + 1) * (w + 1)), (x + 0) + ((y + 1) * (w + 1)),
         ]);
