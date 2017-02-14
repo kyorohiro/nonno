@@ -2,11 +2,14 @@ import 'dart:html' as html;
 import 'dart:web_gl' as gl;
 import 'dart:typed_data';
 import 'dart:async';
-import 'imageutil.dart';
-import 'ntexture.dart';
-import 'nprogram.dart';
 import 'dart:math' as math;
-import 'nonno.dart' as nonno;
+
+/*
+main() async {
+  NGPU ngpu = new NGPU(size: 8);
+  html.document.body.children.add(ngpu.canvasElement);
+  ngpu.render();
+}*/
 
 
 main() async {
